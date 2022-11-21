@@ -55,7 +55,7 @@ v16.15.0
     "client": {
         "testnet": "Ping Testnet", // What ever you want, recommend: chain-id, 
         "logo": "https://ping.pub/logo.svg",
-        "deployer": "heelo"
+        "deployer": ""
     }
     
 }
@@ -71,6 +71,17 @@ v16.15.0
  visit http://localhost:80 
  
  80 is default, you can edit it in the config.json
+ 
+ # Donation
+
+Your donation will help us make better products. Thanks in advance.
+
+ - Address for ERC20: USDC, USDT, ETH
+```
+0x88BFec573Dd3E4b7d2E6BfD4D0D6B11F843F8aa1
+```
+
+ - You can donate any token in the Cosmos ecosystem: [here](https://ping.pub/coffee)
  
  
  

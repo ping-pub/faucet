@@ -1,7 +1,7 @@
 {
     "port": 80,
     "db": {
-        "path": "~/.faucet.db"
+        "path": "./db/faucet.db"
     }, 
     "blockchain": {
         "rpc_endpoint": "https://rpc.sentry-02.theta-testnet.polypore.xyz"
@@ -27,12 +27,12 @@
             ],
             "gas": "200000"
         },
-        "frequency_in_24h": "1"
+        "frequency_in_24h": "100"
     },
     "client": {
         "testnet": "Ping Testnet",
         "logo": "https://ping.pub/logo.svg",
-        "deployer": "heelo"
+        "deployer": "Your Brand"
     }
     
 }

@@ -22,7 +22,12 @@
       <div class="row g-5">
         <div class="input-group">
             <input id="address" class="form-control" placeholder="Input address to recieve token" name="address">
-            <button type="button" class="btn btn-secondary" onclick="requestToken()">Request Token</button>
+            <button type="button" class="btn btn-secondary d-flex flex-row " onclick="requestToken(this)">
+              <span>
+                <span id="button-loading" class="spinner-border spinner-border-sm mt-1 mr-1" style="display:none" role="status" aria-hidden="true"></span>
+              </span>
+             <span class="sr-only">Request Token</span>
+            </button>
         </div>
       </div>
 
@@ -36,33 +41,40 @@
         <li class="list-inline-item"><a href="https://github.com/ping-pub/faucet.git">Deploy a new instance?</a></li>
       </ul>
     </footer>
-    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3" crossorigin="anonymous"></script>
     <script>
         fetch("/config.json").then(response => response.json()).then(data => {
-            document.getElementById("testnet").innerHTML = data.testnet
+            document.getElementById("testnet").innerHTML = data.name
             document.getElementById("logo").src = data.logo
             if(data.deployer) {
-                document.getElementById("deployer").innerHTML = `, Deployed By ${data.deployer}`
+                document.getElementById("deployer").innerHTML = `, Hosted By ${data.deployer}`
             }
         });
 
-        function requestToken() {
+        function requestToken(obj) {
             const address = document.getElementById("address").value
             if (address) {
-                fetch(`/send/${address}`).then(response => response.json()).then(data => {
-                    document.getElementById("message").innerHTML = `
-                    <div class="alert alert-${data.result.code ===0? 'success': 'danger'} alert-dismissible show fade mt-2" role="alert">
-                        <li>${data.result.code ===0? 'Token sent': 'Request failed'}</li>
-                        <textarea class="form-control mt-1" rows="5" style="background-color:transparent">${JSON.stringify(data, null, 2)}</textarea>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                    `
-                });
+              // button state
+              obj.disabled = true
+              document.getElementById("button-loading").style.display = 'block';
+              
+              fetch(`/send/${address}`).then(response => response.json()).then(data => {
+                  // button state
+                  obj.disabled = false
+                  document.getElementById("button-loading").style.display = 'none';
+                  // show result
+                  document.getElementById("message").innerHTML = `
+                  <div class="alert alert-${data.result.code ===0? 'success': 'danger'} alert-dismissible show fade mt-2" role="alert">
+                      <li>${data.result.code ===0? 'Token sent': 'Request failed'}</li>
+                      <textarea class="form-control mt-1" rows="5" style="background-color:transparent">${JSON.stringify(data, null, 2)}</textarea>
+                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                  </div>
+                  `
+              });
             } else {
-                document.getElementById("message").innerHTML = "address is required"
+                document.getElementById("message").innerHTML = '<span class="text-danger">Address is required</span>'
             }
         }
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3" crossorigin="anonymous"></script>
   </body>
 </html>

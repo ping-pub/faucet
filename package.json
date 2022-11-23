@@ -5,6 +5,7 @@
   "description": "Faucet for Cosmos-SDK blockchains",
   "main": "faucet.js",
   "scripts": {
+    "start": "node --experimental-modules --es-module-specifier-resolution=node faucet.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -26,7 +27,8 @@
   "dependencies": {
     "@cosmjs/proto-signing": "^0.29.4",
     "@cosmjs/stargate": "^0.29.4",
-    "dirty": "^1.1.3",
-    "express": "^4.18.2"
+    "express": "^4.18.2",
+    "level": "^8.0.0",
+    "nodemodule": "^0.3.0"
   }
 }

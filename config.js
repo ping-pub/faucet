@@ -1,3 +1,6 @@
+
+import { stringToPath } from '@cosmjs/crypto'
+
 export default {
     "port": 80, // http port 
     "db": {
@@ -17,7 +20,7 @@ export default {
     "sender": {
         "mnemonic": "surround miss nominee dream gap cross assault thank captain prosper drop duty group candy wealth weather scale put",
         "option": {
-            "hdPaths": ["m/44'/118'/0'/0/0"],
+            "hdPaths": [stringToPath("m/44'/118'/0'/0/0")],
             "prefix": "cosmos"
         }
     },

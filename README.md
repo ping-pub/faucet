@@ -19,7 +19,7 @@ v16.15.0
  git clone https://github.com/ping-pub/faucet.git
  ```
  
- - setup configs, you have to change everything you need in `./config.json`
+ - setup configs, you have to change everything you need in `./config.js`
  ```json
  {
     "port": 80,  // http port 
@@ -52,7 +52,7 @@ v16.15.0
         },
         "frequency_in_24h": "1"
     },
-    "client": {
+    "project": {
         "testnet": "Ping Testnet", // What ever you want, recommend: chain-id, 
         "logo": "https://ping.pub/logo.svg",
         "deployer": ""
@@ -63,7 +63,7 @@ v16.15.0
  
  - Run faucet
  ```sh
- node faucet.js
+ node --es-module-specifier-resolution=node faucet.js
  ```
  
  # Test

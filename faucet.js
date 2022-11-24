@@ -4,10 +4,8 @@ import * as path from 'path'
 import { DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
 import { SigningStargateClient } from "@cosmjs/stargate";
 import { FrequencyChecker } from './checker';
-// import conf from './config.json' assert {type: 'json'}
+
 import conf from './config'
-// let confs = require.context('./chains', false, /\.json$/)
-// console.log(confs)
 
 // load config
 console.log("loaded config: ", conf)
@@ -60,7 +58,6 @@ app.listen(conf.port, () => {
 
 
 async function sendTx(recipient) {
-  
   // const mnemonic = "surround miss nominee dream gap cross assault thank captain prosper drop duty group candy wealth weather scale put";
   const wallet = await DirectSecp256k1HdWallet.fromMnemonic(conf.sender.mnemonic, conf.sender.option);
   const [firstAccount] = await wallet.getAccounts();

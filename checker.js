@@ -9,29 +9,39 @@ export class FrequencyChecker {
         this.db = new Level(conf.db.path, { valueEncoding: 'json' });
     }
 
-    async check(address, onAccept, onReject)  {
-        const conf = this.conf
-        this.db.get(address, (err, value) => {
-            const now = Date.now()
-            const limit = Number(conf.tx.frequency_in_24h) // Date.now() - value.timestamp > WINDOW &&
-            // console.log('checker:', err, value.length < limit, value.filter( x => x + WINDOW > now  ).length < limit )
-            if(err || value.length < limit || value.filter( x => x + WINDOW > now  ).length < limit) {
-                onAccept()
-            } else {
-                onReject()
-            }
+    async check(source, limit) {
+        return new Promise((resolve) => {
+            this.db.get(source, function (err, value) {
+                console.log(source, err, value)
+                const now = Date.now()
+                if (err || value && value.filter(x => now - x < WINDOW).length < limit) {
+                    resolve(true)
+                    console.log(source, limit, value, true)
+                } else {
+                    resolve(false)
+                    console.log(source, limit, false)
+                }
+            });
         })
     }
 
-    async update(address)  {
+    async checkIp(ip) {
+        return this.check(ip, this.conf.limit.ip)
+    }
+
+    async checkAddress(address) {
+        return this.check(address, this.conf.limit.address)
+    }
+
+    async update(source) {
         const db = this.db
-        db.get(address, function(err, value) {    
+        db.get(source, function (err, history) {
             if (err) {
-              db.put(address, [Date.now()])
+                db.put(source, [Date.now()])
             } else {
-              value.push(Date.now())
-              db.put(address, value)
+                history.push(Date.now())
+                db.put(source, history)
             }
-          });
+        });
     }
 }

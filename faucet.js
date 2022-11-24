@@ -1,13 +1,20 @@
 import express from 'express';
 import * as path from 'path'
 
-import { DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
+// import { DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
 import { SigningStargateClient } from "@cosmjs/stargate";
 import { FrequencyChecker } from './checker';
-// import conf from './config.json' assert {type: 'json'}
+
 import conf from './config'
-// let confs = require.context('./chains', false, /\.json$/)
-// console.log(confs)
+// EVMOS dependency
+import fetch from "node-fetch";
+import { Wallet } from '@ethersproject/wallet'
+import { createMessageSend } from '@tharsis/transactions'
+import {
+  broadcast,
+  getSender,
+  signTransaction,
+} from '@hanchon/evmos-ts-wallet'
 
 // load config
 console.log("loaded config: ", conf)
@@ -25,7 +32,7 @@ app.get('/config.json', (req, res) => {
 })
 
 app.get('/send/:address', async (req, res) => {
-  const {address} = req.params;
+  const { address } = req.params;
   console.log('request tokens to ', address)
   if (address) {
     try {
@@ -63,21 +70,42 @@ app.listen(conf.port, () => {
   console.log(`Faucet app listening on port ${conf.port}`)
 })
 
+// sendTx('evmos144ysmwalylpju9yuplfh2a900pugv5ly2j7r6l')
 
 async function sendTx(recipient) {
-  
-  // const mnemonic = "surround miss nominee dream gap cross assault thank captain prosper drop duty group candy wealth weather scale put";
-  const wallet = await DirectSecp256k1HdWallet.fromMnemonic(conf.sender.mnemonic, conf.sender.option);
-  const [firstAccount] = await wallet.getAccounts();
 
-  // console.log("sender", firstAccount);
+  const wallet = Wallet.fromMnemonic(conf.sender.mnemonic, conf.sender.option.hdPaths);
+  const sender = await getSender(wallet, conf.blockchain.endpoint)
 
-  const rpcEndpoint = conf.blockchain.rpc_endpoint;
-  const client = await SigningStargateClient.connectWithSigner(rpcEndpoint, wallet);
+  // console.log("sender:", sender)
 
-  // const recipient = "cosmos1xv9tklw7d82sezh9haa573wufgy59vmwe6xxe5";
-  const amount = conf.tx.amount;
-  const fee = conf.tx.fee;
-  return client.sendTokens(firstAccount.address, recipient, [amount], fee);
+  const fee = {
+    amount: conf.tx.fee.amount.amount,
+    denom: conf.tx.fee.amount.denom,
+    gas: conf.tx.fee.gas,
+  }
+
+  const tx = createMessageSend(conf.blockchain, sender, fee, '', {
+    destinationAddress: recipient,
+    amount: '1',
+    denom: 'tevmos',
+  })
+
+  // console.log(tx)
+
+  const resKeplr = await signTransaction(wallet, tx)
+  console.log('tx', resKeplr)
+  // const broadcastRes = await broadcast(resKeplr, conf.blockchain.endpoint)
+  const broadcastRes = await fetch(`${conf.blockchain.endpoint}/cosmos/tx/v1beta1/txs`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: '*/*',
+    },
+    body: resKeplr, // body data type must match "Content-Type" header
+  })
+
+  console.log("response:", broadcastRes)
+
 }
 

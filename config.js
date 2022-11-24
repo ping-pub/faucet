@@ -12,28 +12,30 @@ export default {
         "deployer": `<a href="#">Your Brand</a>`
     },
     "blockchain": {
-        // make sure that CORS is enabled in rpc section in config.toml
+        "chainId": 9000,
+        "cosmosChainId": 'evmos_9000-4',
+        // make sure that CORS is enabled in lcd section in config.toml
         // cors_allowed_origins = ["*"]
-        "rpc_endpoint": "https://rpc.sentry-02.theta-testnet.polypore.xyz",
+        "endpoint": "https://rest.bd.evmos.dev:1317",
 
     },
     "sender": {
         "mnemonic": "surround miss nominee dream gap cross assault thank captain prosper drop duty group candy wealth weather scale put",
         "option": {
-            "hdPaths": [stringToPath("m/44'/118'/0'/0/0")],
-            "prefix": "cosmos"
+            "hdPaths": "m/44'/60'/0'/0/0",
+            "prefix": "evmos"
         }
     },
     "tx": {
         "amount": {
-            "denom": "uatom",
+            "denom": "aevmos",
             "amount": "10000"
         },
         "fee": {
             "amount": [
                 {
                     "amount": "1000",
-                    "denom": "uatom"
+                    "denom": "aevmos"
                 }
             ],
             "gas": "200000"

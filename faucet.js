@@ -1,10 +1,6 @@
 import express from 'express';
 import * as path from 'path'
-
-// import { DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
-import { SigningStargateClient } from "@cosmjs/stargate";
 import { FrequencyChecker } from './checker';
-
 import conf from './config'
 // EVMOS dependency
 import fetch from "node-fetch";

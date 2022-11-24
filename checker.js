@@ -9,17 +9,16 @@ export class FrequencyChecker {
         this.db = new Level(conf.db.path, { valueEncoding: 'json' });
     }
 
-    async check(source, limit) {
+    async check(key, limit) {
         return new Promise((resolve) => {
-            this.db.get(source, function (err, value) {
-                console.log(source, err, value)
+            this.db.get(key, function (err, value) {
                 const now = Date.now()
                 if (err || value && value.filter(x => now - x < WINDOW).length < limit) {
                     resolve(true)
-                    console.log(source, limit, value, true)
+                    // console.log(key, limit, value, true)
                 } else {
                     resolve(false)
-                    console.log(source, limit, false)
+                    // console.log(key, limit, false)
                 }
             });
         })
@@ -33,14 +32,14 @@ export class FrequencyChecker {
         return this.check(address, this.conf.limit.address)
     }
 
-    async update(source) {
+    async update(key) {
         const db = this.db
-        db.get(source, function (err, history) {
+        db.get(key, function (err, history) {
             if (err) {
-                db.put(source, [Date.now()])
+                db.put(key, [Date.now()])
             } else {
                 history.push(Date.now())
-                db.put(source, history)
+                db.put(key, history)
             }
         });
     }

@@ -26,25 +26,20 @@ app.get('/config.json', (req, res) => {
 
 app.get('/send/:address', async (req, res) => {
   const {address} = req.params;
-  console.log('request tokens to ', address)
+  console.log('request tokens to ', address, req.ip)
   if (address) {
     try {
       if (address.startsWith(conf.sender.option.prefix)) {
-        checker.check(
-          // 1. address
-          address,
-          // onAccept
-          () => {
-            sendTx(address).then(ret => {
-              console.log('sent tokens to ', address)
-              checker.update(address)
-              res.send({ result: ret })
-            });
-          },
-          // onReject
-          () => {
-            res.send({ result: "You requested too often" })
+        if( await checker.checkAddress(address) && await checker.checkIp(req.ip) ) {
+          sendTx(address).then(ret => {
+            console.log('sent tokens to ', address)
+            checker.update(address)
+            checker.update(req.ip) // get ::1 on localhost
+            res.send({ result: ret })
           });
+        }else {
+          res.send({ result: "You requested too often" })
+        }
       } else {
         res.send({ result: `Address [${address}] is not supported.` })
       }

@@ -18,8 +18,12 @@ app.get('/', (req, res) => {
   res.sendFile(path.resolve('./index.html'));
 })
 
-app.get('/config.json', (req, res) => {
-  res.send(conf.project);
+app.get('/config.json', async (req, res) => {
+  const wallet = await DirectSecp256k1HdWallet.fromMnemonic(conf.sender.mnemonic, conf.sender.option);
+  const [firstAccount] = await wallet.getAccounts();
+  const project = conf.project
+  project.sample = firstAccount.address
+  res.send(project);
 })
 
 app.get('/send/:address', async (req, res) => {

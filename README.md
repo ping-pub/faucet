@@ -56,8 +56,15 @@ v16.15.0
         "testnet": "Ping Testnet", // What ever you want, recommend: chain-id, 
         "logo": "https://ping.pub/logo.svg",
         "deployer": ""
+    },
+    // request limitation
+    limit: {
+        // how many times each wallet address is allowed in a window(24h)
+        address: 1, 
+        // how many times each ip is allowed in a window(24h),
+        // if you use proxy, double check if the req.ip is return client's ip.
+        ip: 10 
     }
-    
 }
  ```
  

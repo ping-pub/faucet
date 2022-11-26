@@ -20,7 +20,7 @@ v16.15.0
  ```
  
  - setup configs, you have to change everything you need in `./config.js`
- ```json
+ ```js
  {
     "port": 80,  // http port 
     "db": {

@@ -62,7 +62,7 @@ v16.15.0
         // how many times each wallet address is allowed in a window(24h)
         address: 1, 
         // how many times each ip is allowed in a window(24h),
-        // if you use proxy, double check if the req.ip is return client's ip.
+        // if you use proxy, double check if the req.ip returns client's ip.
         ip: 10 
     }
 }

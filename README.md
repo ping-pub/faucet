@@ -20,42 +20,51 @@ v16.15.0
  ```
  
  - setup configs, you have to change everything you need in `./config.js`
- ```json
+ ```js
  {
-    "port": 80,  // http port 
-    "db": {
-        "path": "~/.faucet.db" // db for frequency checker(WIP)
-    }, 
-    "blockchain": {
-        "rpc_endpoint": "https://rpc.sentry-02.theta-testnet.polypore.xyz"
+    port: 80, // http port 
+    db: {
+        path: "./db/faucet.db" // save request states 
     },
-    "sender": {
-        "mnemonic": "surround miss nominee dream gap cross assault thank captain prosper drop duty group candy wealth weather scale put",
-        "option": {
-            "hdPaths": ["m/44'/118'/0'/0/0"],
-            "prefix": "cosmos"  //address prefix
+    project: {
+        name: "Ping Testnet",
+        logo: "https://ping.pub/logo.svg",
+        deployer: `<a href="#">Your Brand</a>`
+    },
+    blockchain: {
+        chainId: 9000,
+        cosmosChainId: 'evmos_9000-4',
+        // make sure that CORS is enabled in lcd section in config.toml
+        // cors_allowed_origins = ["*"]
+        endpoint: "https://rest.bd.evmos.dev:1317",
+
+    },
+    sender: {
+        mnemonic: "surround miss nominee dream gap cross assault thank captain prosper drop duty group candy wealth weather scale put",
+        option: {
+            hdPaths: "m/44'/60'/0'/0/0",
+            prefix: "evmos"
         }
     },
-    "tx": {
-        "amount": {
-            "denom": "uatom",
-            "amount": "10000" // how many does tx send for each request.
-          },
-        "fee": {
-            "amount": [
+    tx: {
+        amount: {
+            denom: "uatom",
+            amount: "10000"
+
+        },
+        fee: {
+            amount: [
                 {
-                  "amount": "1000",
-                  "denom":  "uatom"
+                    amount: "1000",
+                    denom: "aevmos"
                 }
             ],
-            "gas": "200000"
+            gas: "200000"
         },
-        "frequency_in_24h": "1"
     },
-    "project": {
-        "testnet": "Ping Testnet", // What ever you want, recommend: chain-id, 
-        "logo": "https://ping.pub/logo.svg",
-        "deployer": ""
+    limit: {
+        address: 10, // wallet address
+        ip: 2
     }
     
 }

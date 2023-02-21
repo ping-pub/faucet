@@ -19,23 +19,31 @@ app.get('/', (req, res) => {
 })
 
 app.get('/config.json', async (req, res) => {
-  const wallet = await DirectSecp256k1HdWallet.fromMnemonic(conf.sender.mnemonic, conf.sender.option);
-  const [firstAccount] = await wallet.getAccounts();
+  const sample = {}
+  for(let i =0; i < conf.blockchains.length; i++) {
+    const chainConf = conf.blockchains[i]
+    const wallet = await DirectSecp256k1HdWallet.fromMnemonic(chainConf.sender.mnemonic, chainConf.sender.option);
+    const [firstAccount] = await wallet.getAccounts();
+    sample[chainConf.name] = firstAccount.address
+  }
+
   const project = conf.project
-  project.sample = firstAccount.address
+  project.sample = sample
+  project.blockchains = conf.blockchains.map(x => x.name)
   res.send(project);
 })
 
-app.get('/send/:address', async (req, res) => {
-  const {address} = req.params;
+app.get('/send/:chain/:address', async (req, res) => {
+  const {chain, address} = req.params;
   console.log('request tokens to ', address, req.ip)
-  if (address) {
+  if (chain || address ) {
     try {
-      if (address.startsWith(conf.sender.option.prefix)) {
-        if( await checker.checkAddress(address) && await checker.checkIp(req.ip) ) {
-          checker.update(req.ip) // get ::1 on localhost
-          sendTx(address).then(ret => {
-            console.log('sent tokens to ', address)
+      const chainConf = conf.blockchains.find(x => x.name === chain)
+      if (chainConf && address.startsWith(chainConf.sender.option.prefix)) {
+        if( await checker.checkAddress(address, chain) && await checker.checkIp(`${chain}${req.ip}`, chain) ) {
+          checker.update(`${chain}${req.ip}`) // get ::1 on localhost
+          sendTx(address, chain).then(ret => {
+
             checker.update(address)
             res.send({ result: ret })
           });
@@ -61,19 +69,23 @@ app.listen(conf.port, () => {
 })
 
 
-async function sendTx(recipient) {
+async function sendTx(recipient, chain) {
   // const mnemonic = "surround miss nominee dream gap cross assault thank captain prosper drop duty group candy wealth weather scale put";
-  const wallet = await DirectSecp256k1HdWallet.fromMnemonic(conf.sender.mnemonic, conf.sender.option);
-  const [firstAccount] = await wallet.getAccounts();
+  const chainConf = conf.blockchains.find(x => x.name === chain) 
+  if(chainConf) {
+    const wallet = await DirectSecp256k1HdWallet.fromMnemonic(chainConf.sender.mnemonic, chainConf.sender.option);
+    const [firstAccount] = await wallet.getAccounts();
 
-  // console.log("sender", firstAccount);
+    // console.log("sender", firstAccount);
 
-  const rpcEndpoint = conf.blockchain.rpc_endpoint;
-  const client = await SigningStargateClient.connectWithSigner(rpcEndpoint, wallet);
+    const rpcEndpoint = chainConf.endpoint.rpc_endpoint;
+    const client = await SigningStargateClient.connectWithSigner(rpcEndpoint, wallet);
 
-  // const recipient = "cosmos1xv9tklw7d82sezh9haa573wufgy59vmwe6xxe5";
-  const amount = conf.tx.amount;
-  const fee = conf.tx.fee;
-  return client.sendTokens(firstAccount.address, recipient, [amount], fee);
+    // const recipient = "cosmos1xv9tklw7d82sezh9haa573wufgy59vmwe6xxe5";
+    const amount = chainConf.tx.amount;
+    const fee = chainConf.tx.fee;
+    return client.sendTokens(firstAccount.address, recipient, [amount], fee);
+  }
+  throw new Error(`Blockchain Config [${chain}] not found`)
 }
 

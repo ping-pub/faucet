@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Cosmos SDK Blockchain Faucet</title>
+    <title>Faucet for Cosmos SDK Blockchain</title>
     <link rel="icon" href="https://ping.pub/favicon.ico" />
     <meta name=”robots” content="index, follow">
     <meta name="description" content="Uniform Faucet Tool For Cosmos SDK Blockchains - Powered By Ping.pub">
@@ -22,6 +22,11 @@
         </div>
         <div class="row g-5">
           <div class="input-group">
+              <span class="input-group-text">
+                <select v-model="chain">
+                  <option v-for="c in conf.blockchains">{{c}}</option>
+                </select>
+              </span>
               <input id="address" class="form-control" :placeholder="placeholder" v-model="address" name="address">
               <button type="button" class="btn btn-secondary d-flex flex-row " @click="requestToken(this)">
                 <span>
@@ -51,21 +56,34 @@
             message: '',
             testnet: 'Ping Testnet',
             logo: 'https://ping.pub/logo.svg',
-            placeholder: 'Input an address to request token',
             deployer: '',
-            address: ''
+            address: '',
+            chain: '',
+            conf: {}
           }
         },
         created() {
           console.log(this)
           fetch("/config.json").then(response => response.json()).then(data => {
+            this.conf = data
             this.testnet = data.name
             this.logo = data.logo
-            this.placeholder = `Input an address (e.g.: ${data.sample}) to received tokens`
+            this.chain = data.blockchains[0]
+            // this.placeholder = `Input an address (e.g.: ${data.sample[this.chain]}) to received tokens`
+
             if(data.deployer) {
                 this.deployer = `, Hosted By ${data.deployer}`
             }
           });
+        },
+        computed: {
+          placeholder() {
+            if(this.conf.sample) {
+              return `Input an address (e.g.: ${this.conf.sample[this.chain]}) to received tokens`
+            } else {
+              return 'Input an address to received tokens'
+            }
+          }
         },
         methods: {
           requestToken(obj) {
@@ -74,7 +92,7 @@
               obj.disabled = true
               document.getElementById("button-loading").style.display = 'block';
               
-              fetch(`/send/${this.address}`).then(response => response.json()).then(data => {
+              fetch(`/send/${this.chain}/${this.address}`).then(response => response.json()).then(data => {
                   // button state
                   obj.disabled = false
                   document.getElementById("button-loading").style.display = 'none';

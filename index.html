@@ -23,7 +23,7 @@
         <div class="row g-5">
           <div class="input-group">
               <span class="input-group-text">
-                <select v-model="chain">
+                <select v-model="chain" @change="onChange()">
                   <option v-for="c in conf.blockchains">{{c}}</option>
                 </select>
               </span>
@@ -46,7 +46,7 @@
         <ul class="list-inline">
           <li class="list-inline-item"><a href="https://github.com/ping-pub/faucet.git">Deploy a new instance?</a></li>
         </ul>
-        <p> Faucet Address: {{ faucet }}</p>
+        <p> Faucet Address: {{ faucet }}, <br> Balance: {{ balance.amount }} {{balance.denom}}</p>
       </footer>
     </div>
     <script type="module">
@@ -60,7 +60,8 @@
             deployer: '',
             address: '',
             chain: '',
-            conf: {}
+            conf: {},
+            balance: {},
           }
         },
         created() {
@@ -70,7 +71,7 @@
             this.logo = data.logo
             this.chain = data.blockchains[0]
             // this.placeholder = `Input an address (e.g.: ${data.sample[this.chain]}) to received tokens`
-
+            this.onChange()
             if(data.deployer) {
                 this.deployer = `, Hosted By ${data.deployer}`
             }
@@ -89,6 +90,12 @@
           }
         },
         methods: {
+          onChange() {
+            this.balance = {} // reset balance
+            fetch(`/balance/${this.chain}`).then(r => r.json()).then(balance => {
+              this.balance = balance
+            })
+          },
           requestToken(obj) {
             if (this.address) {
               // button state

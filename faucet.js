@@ -33,6 +33,23 @@ app.get('/config.json', async (req, res) => {
   res.send(project);
 })
 
+app.get('/balance/:chain', async (req, res) => {
+  const { chain }= req.params
+
+  let balance = {}
+
+  const chainConf = conf.blockchains.find(x => x.name === chain)
+  if(chainConf) {
+    const rpcEndpoint = chainConf.endpoint.rpc_endpoint;
+    const wallet = await DirectSecp256k1HdWallet.fromMnemonic(chainConf.sender.mnemonic, chainConf.sender.option);
+    const client = await SigningStargateClient.connectWithSigner(rpcEndpoint, wallet);
+    const [firstAccount] = await wallet.getAccounts();
+    balance = await client.getBalance(firstAccount.address, chainConf.tx.amount.denom)
+  }
+
+  res.send(balance);
+})
+
 app.get('/send/:chain/:address', async (req, res) => {
   const {chain, address} = req.params;
   const ip = req.headers['x-real-ip'] || req.headers['X-Real-IP'] || req.headers['X-Forwarded-For'] || req.ip
@@ -83,6 +100,7 @@ async function sendTx(recipient, chain) {
 
     const rpcEndpoint = chainConf.endpoint.rpc_endpoint;
     const client = await SigningStargateClient.connectWithSigner(rpcEndpoint, wallet);
+    client.getBalance
 
     // const recipient = "cosmos1xv9tklw7d82sezh9haa573wufgy59vmwe6xxe5";
     const amount = chainConf.tx.amount;

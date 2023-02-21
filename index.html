@@ -14,10 +14,10 @@
     <div id="app">
       <main class="container-md">
         <div class="py-5 text-center">
-          <img id="logo" class="d-block mx-auto mb-4" :src="logo" :alt="`${testnet} Faucet`">
+          <img id="logo" class="d-block mx-auto mb-4" src="https://interchainnfts.dev/assets/img/banner.e3623744.png" :alt="`${testnet} Faucet`">
           <h1><span id="testnet">{{ testnet }}</span> Faucet</h1>
           <p class="lead">Dear, Cosmonauts! <br>
-              Welcome to our testnet! Are you looking for some tokens to start? 
+              Welcome to our {{ testnet }}! Are you looking for some tokens to start? 
           </p>
         </div>
         <div class="row g-5">
@@ -46,6 +46,7 @@
         <ul class="list-inline">
           <li class="list-inline-item"><a href="https://github.com/ping-pub/faucet.git">Deploy a new instance?</a></li>
         </ul>
+        <p> Faucet Address: {{ faucet }}</p>
       </footer>
     </div>
     <script type="module">
@@ -63,7 +64,6 @@
           }
         },
         created() {
-          console.log(this)
           fetch("/config.json").then(response => response.json()).then(data => {
             this.conf = data
             this.testnet = data.name
@@ -83,6 +83,9 @@
             } else {
               return 'Input an address to received tokens'
             }
+          },
+          faucet() {
+            return this.conf.sample? this.conf.sample[this.chain] : ''
           }
         },
         methods: {

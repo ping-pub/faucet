@@ -35,17 +35,20 @@ app.get('/config.json', async (req, res) => {
 
 app.get('/send/:chain/:address', async (req, res) => {
   const {chain, address} = req.params;
-  console.log('request tokens to ', address, req.ip)
+  const ip = req.headers['x-real-ip'] || req.headers['X-Real-IP'] || req.headers['X-Forwarded-For'] || req.ip
+  console.log('request tokens to ', address, ip)
   if (chain || address ) {
     try {
       const chainConf = conf.blockchains.find(x => x.name === chain)
       if (chainConf && address.startsWith(chainConf.sender.option.prefix)) {
-        if( await checker.checkAddress(address, chain) && await checker.checkIp(`${chain}${req.ip}`, chain) ) {
-          checker.update(`${chain}${req.ip}`) // get ::1 on localhost
+        if( await checker.checkAddress(address, chain) && await checker.checkIp(`${chain}${ip}`, chain) ) {
+          checker.update(`${chain}${ip}`) // get ::1 on localhost
           sendTx(address, chain).then(ret => {
 
             checker.update(address)
             res.send({ result: ret })
+          }).catch(err => {
+            res.send({ result: `err: ${err}`})
           });
         }else {
           res.send({ result: "You requested too often" })

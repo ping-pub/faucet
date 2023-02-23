@@ -20,7 +20,7 @@ export default {
                 rpc_endpoint: " http://34.80.93.133:26657",
             },
             sender: {
-                mnemonic: "nose useless people town skin horse employ flock situate market mean captain author amused coil vocal message traffic card put large person base notable",
+                mnemonic: "surround miss nominee dream gap cross assault thank captain prosper drop duty group candy wealth weather scale put",
                 option: {
                     hdPaths: [stringToPath("m/44'/118'/0'/0/0")],
                     prefix: "iaa"
@@ -57,7 +57,7 @@ export default {
                 rpc_endpoint: "https://rpc.elgafar-1.stargaze-apis.com:443",
             },
             sender: {
-                mnemonic: "nose useless people town skin horse employ flock situate market mean captain author amused coil vocal message traffic card put large person base notable",
+                mnemonic: "surround miss nominee dream gap cross assault thank captain prosper drop duty group candy wealth weather scale put",
                 option: {
                     hdPaths: [stringToPath("m/44'/118'/0'/0/0")],
                     prefix: "stars"
@@ -94,7 +94,7 @@ export default {
                 rpc_endpoint: "https://rpc.uni.junonetwork.io/",
             },
             sender: {
-                mnemonic: "nose useless people town skin horse employ flock situate market mean captain author amused coil vocal message traffic card put large person base notable",
+                mnemonic: "surround miss nominee dream gap cross assault thank captain prosper drop duty group candy wealth weather scale put",
                 option: {
                     hdPaths: [stringToPath("m/44'/118'/0'/0/0")],
                     prefix: "juno"
@@ -131,7 +131,7 @@ export default {
                 rpc_endpoint: "http://65.21.93.56:26657/",
             },
             sender: {
-                mnemonic: "nose useless people town skin horse employ flock situate market mean captain author amused coil vocal message traffic card put large person base notable",
+                mnemonic: "surround miss nominee dream gap cross assault thank captain prosper drop duty group candy wealth weather scale put",
                 option: {
                     hdPaths: [stringToPath("m/44'/118'/0'/0/0")],
                     prefix: "omniflix"
@@ -173,7 +173,7 @@ export default {
                 rpc_endpoint: "http://52.220.252.160:26657/",
             },
             sender: {
-                mnemonic: "nose useless people town skin horse employ flock situate market mean captain author amused coil vocal message traffic card put large person base notable",
+                mnemonic: "surround miss nominee dream gap cross assault thank captain prosper drop duty group candy wealth weather scale put",
                 option: {
                     hdPaths: [stringToPath("m/44'/60/0'/0/0")],
                     prefix: "uptick"

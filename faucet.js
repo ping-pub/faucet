@@ -7,6 +7,15 @@ import { FrequencyChecker } from './checker';
 
 import conf from './config'
 
+import { Wallet } from '@ethersproject/wallet'
+import { createMessageSend } from '@tharsis/transactions'
+import {
+  broadcast,
+  getSender,
+  signTransaction,
+} from '@hanchon/evmos-ts-wallet'
+import { pathToString } from '@cosmjs/crypto';
+
 // load config
 console.log("loaded config: ", conf)
 
@@ -25,6 +34,11 @@ app.get('/config.json', async (req, res) => {
     const wallet = await DirectSecp256k1HdWallet.fromMnemonic(chainConf.sender.mnemonic, chainConf.sender.option);
     const [firstAccount] = await wallet.getAccounts();
     sample[chainConf.name] = firstAccount.address
+
+
+    pathToString
+    const wallet2 = Wallet.fromMnemonic(chainConf.sender.mnemonic, pathToString(chainConf.sender.option.hdPaths[0]));
+    console.log('address:', firstAccount.address, wallet2.address)
   }
 
   const project = conf.project
@@ -88,8 +102,7 @@ app.listen(conf.port, () => {
   console.log(`Faucet app listening on port ${conf.port}`)
 })
 
-
-async function sendTx(recipient, chain) {
+async function sendCosmosTx(recipient, chain) {
   // const mnemonic = "surround miss nominee dream gap cross assault thank captain prosper drop duty group candy wealth weather scale put";
   const chainConf = conf.blockchains.find(x => x.name === chain) 
   if(chainConf) {
@@ -110,3 +123,45 @@ async function sendTx(recipient, chain) {
   throw new Error(`Blockchain Config [${chain}] not found`)
 }
 
+async function sendEvmosTx(recipient, chain) {
+
+  const chainConf = conf.blockchains.find(x => x.name === chain) 
+  const wallet = Wallet.fromMnemonic(chainConf.sender.mnemonic, pathToString(chainConf.sender.option.hdPaths[0]));
+  const sender = await getSender(wallet, chainConf.endpoint.rpc_endpoint)
+
+  // console.log("sender:", sender)
+
+  const fee = {
+    amount: chainConf.tx.fee.amount.amount,
+    denom: chainConf.tx.fee.amount.denom,
+    gas: chainConf.tx.fee.gas,
+  }
+
+  const tx = createMessageSend(chainConf.ids, sender, fee, '', {
+    destinationAddress: recipient,
+    amount: chainConf.tx.amount.amount,
+    denom: chainConf.tx.amount.denom,
+  })
+
+  // console.log(tx)
+
+  const resKeplr = await signTransaction(wallet, tx)
+  console.log('tx', resKeplr)
+  // const broadcastRes = await broadcast(resKeplr, conf.blockchain.endpoint)
+  return await fetch(`${chainConf.endpoint.endpoint}/cosmos/tx/v1beta1/txs`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: '*/*',
+    },
+    body: resKeplr, // body data type must match "Content-Type" header
+  })
+}
+
+async function sendTx(recipient, chain) {
+  const chainConf = conf.blockchains.find(x => x.name === chain) 
+  if(chainConf.type === 'Ethermint') {
+    return sendEvmosTx(recipient, chain)
+  }
+  return sendCosmosTx(recipient, chain)
+}

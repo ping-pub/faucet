@@ -3,9 +3,9 @@ import * as path from 'path'
 
 import { DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
 import { SigningStargateClient } from "@cosmjs/stargate";
-import { FrequencyChecker } from './checker';
+import { FrequencyChecker } from './checker.js';
 
-import conf from './config'
+import conf from './config.js'
 
 import { Wallet } from '@ethersproject/wallet'
 import { pathToString } from '@cosmjs/crypto';

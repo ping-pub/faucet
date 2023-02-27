@@ -8,13 +8,10 @@ import { FrequencyChecker } from './checker';
 import conf from './config'
 
 import { Wallet } from '@ethersproject/wallet'
-import { createMessageSend } from '@tharsis/transactions'
-import {
-  broadcast,
-  getSender,
-  signTransaction,
-} from '@hanchon/evmos-ts-wallet'
 import { pathToString } from '@cosmjs/crypto';
+
+import { ethers } from 'ethers';
+import { bech32 } from 'bech32';
 
 // load config
 console.log("loaded config: ", conf)
@@ -126,36 +123,41 @@ async function sendCosmosTx(recipient, chain) {
 async function sendEvmosTx(recipient, chain) {
 
   const chainConf = conf.blockchains.find(x => x.name === chain) 
-  const wallet = Wallet.fromMnemonic(chainConf.sender.mnemonic, pathToString(chainConf.sender.option.hdPaths[0]));
-  const sender = await getSender(wallet, chainConf.endpoint.rpc_endpoint)
+  const ethProvider = new ethers.providers.JsonRpcProvider(chainConf.endpoint.evm_endpoint);
 
-  // console.log("sender:", sender)
+  const wallet = Wallet.fromMnemonic(chainConf.sender.mnemonic).connect(ethProvider);
+  let decode = bech32.decode(recipient);
+  let array = bech32.fromWords(decode.words);
+  let evmAddress =  "0x" + toHexString(array);
+  try{
+    let result = await wallet.sendTransaction(
+        { 
+          from:wallet.address,
+          to:evmAddress,
+          value:chainConf.tx.amount.amount
+        }
+      );
+   
+    let repTx = {
+      "code":0,
+      "nonce":result["nonce"],
+      "value":result["value"].toString(),
+      "hash":result["hash"]
+    };
 
-  const fee = {
-    amount: chainConf.tx.fee.amount.amount,
-    denom: chainConf.tx.fee.amount.denom,
-    gas: chainConf.tx.fee.gas,
+    console.log("xxl result : ",repTx);
+    return repTx;
+  }catch(e){
+    console.log("xxl e ",e);
+    return e;
   }
 
-  const tx = createMessageSend(chainConf.ids, sender, fee, '', {
-    destinationAddress: recipient,
-    amount: chainConf.tx.amount.amount,
-    denom: chainConf.tx.amount.denom,
-  })
+}
 
-  // console.log(tx)
-
-  const resKeplr = await signTransaction(wallet, tx)
-  console.log('tx', resKeplr)
-  // const broadcastRes = await broadcast(resKeplr, conf.blockchain.endpoint)
-  return await fetch(`${chainConf.endpoint.endpoint}/cosmos/tx/v1beta1/txs`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Accept: '*/*',
-    },
-    body: resKeplr, // body data type must match "Content-Type" header
-  })
+function toHexString(bytes) {
+  return bytes.reduce(
+      (str, byte) => str + byte.toString(16).padStart(2, '0'), 
+      '');
 }
 
 async function sendTx(recipient, chain) {

@@ -33,6 +33,8 @@
     "@tharsis/transactions": "^0.2.6",
     "express": "^4.18.2",
     "level": "^8.0.0",
-    "nodemodule": "^0.3.0"
+    "nodemodule": "^0.3.0",
+    "bech32": "^2.0.0",
+    "ethers": "^5.7.1"
   }
 }

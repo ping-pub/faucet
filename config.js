@@ -171,6 +171,7 @@ export default {
                 // make sure that CORS is enabled in rpc section in config.toml
                 // cors_allowed_origins = ["*"]
                 rpc_endpoint: "http://52.220.252.160:26657/",
+                evm_endpoint: "http://52.220.252.160:8545/",
             },
             sender: {
                 mnemonic: "surround miss nominee dream gap cross assault thank captain prosper drop duty group candy wealth weather scale put",
@@ -182,7 +183,7 @@ export default {
             tx: {
                 amount: {
                     denom: "auptick",
-                    amount: "10000000"
+                    amount: "5000000000000000000"
                 },
                 fee: {
                     amount: [

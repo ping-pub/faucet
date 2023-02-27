@@ -50,12 +50,23 @@ app.get('/balance/:chain', async (req, res) => {
   let balance = {}
 
   const chainConf = conf.blockchains.find(x => x.name === chain)
-  if(chainConf) {
+  if(chainConf.type === 'Ethermint') {
+    const ethProvider = new ethers.providers.JsonRpcProvider(chainConf.endpoint.evm_endpoint);
+    const wallet = Wallet.fromMnemonic(chainConf.sender.mnemonic).connect(ethProvider);
+    const ethBlance = await wallet.getBalance()
+
+    balance = {
+      denom:chainConf.tx.amount.denom,
+      amount:ethBlance.toString()
+    }
+  }else{
+
     const rpcEndpoint = chainConf.endpoint.rpc_endpoint;
     const wallet = await DirectSecp256k1HdWallet.fromMnemonic(chainConf.sender.mnemonic, chainConf.sender.option);
+
     const client = await SigningStargateClient.connectWithSigner(rpcEndpoint, wallet);
     const [firstAccount] = await wallet.getAccounts();
-    balance = await client.getBalance(firstAccount.address, chainConf.tx.amount.denom)
+    balance = await client.getBalance(firstAccount.address, chainConf.tx.amount.denom);
   }
 
   res.send(balance);

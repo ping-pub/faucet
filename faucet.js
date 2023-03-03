@@ -32,8 +32,6 @@ app.get('/config.json', async (req, res) => {
     const [firstAccount] = await wallet.getAccounts();
     sample[chainConf.name] = firstAccount.address
 
-
-    pathToString
     const wallet2 = Wallet.fromMnemonic(chainConf.sender.mnemonic, pathToString(chainConf.sender.option.hdPaths[0]));
     console.log('address:', firstAccount.address, wallet2.address)
   }
@@ -53,12 +51,13 @@ app.get('/balance/:chain', async (req, res) => {
   if(chainConf.type === 'Ethermint') {
     const ethProvider = new ethers.providers.JsonRpcProvider(chainConf.endpoint.evm_endpoint);
     const wallet = Wallet.fromMnemonic(chainConf.sender.mnemonic).connect(ethProvider);
-    const ethBlance = await wallet.getBalance()
+    await wallet.getBalance().then(ethBlance => {
+      balance = {
+        denom:chainConf.tx.amount.denom,
+        amount:ethBlance.toString()
+      }
+    }).catch(e => console.error(e))
 
-    balance = {
-      denom:chainConf.tx.amount.denom,
-      amount:ethBlance.toString()
-    }
   }else{
 
     const rpcEndpoint = chainConf.endpoint.rpc_endpoint;
@@ -66,7 +65,9 @@ app.get('/balance/:chain', async (req, res) => {
 
     const client = await SigningStargateClient.connectWithSigner(rpcEndpoint, wallet);
     const [firstAccount] = await wallet.getAccounts();
-    balance = await client.getBalance(firstAccount.address, chainConf.tx.amount.denom);
+    await client.getBalance(firstAccount.address, chainConf.tx.amount.denom).then(x => {
+      return balance = x
+    }).catch(e => console.error(e));
   }
 
   res.send(balance);

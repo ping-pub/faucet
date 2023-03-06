@@ -48,28 +48,28 @@ app.get('/balance/:chain', async (req, res) => {
   let balance = {}
 
   const chainConf = conf.blockchains.find(x => x.name === chain)
-  if(chainConf.type === 'Ethermint') {
-    const ethProvider = new ethers.providers.JsonRpcProvider(chainConf.endpoint.evm_endpoint);
-    const wallet = Wallet.fromMnemonic(chainConf.sender.mnemonic).connect(ethProvider);
-    await wallet.getBalance().then(ethBlance => {
-      balance = {
-        denom:chainConf.tx.amount.denom,
-        amount:ethBlance.toString()
-      }
-    }).catch(e => console.error(e))
+  if(chainConf) {
+    if(chainConf.type === 'Ethermint') {
+      const ethProvider = new ethers.providers.JsonRpcProvider(chainConf.endpoint.evm_endpoint);
+      const wallet = Wallet.fromMnemonic(chainConf.sender.mnemonic).connect(ethProvider);
+      await wallet.getBalance().then(ethBlance => {
+        balance = {
+          denom:chainConf.tx.amount.denom,
+          amount:ethBlance.toString()
+        }
+      }).catch(e => console.error(e))
 
-  }else{
+    }else{
+      const rpcEndpoint = chainConf.endpoint.rpc_endpoint;
+      const wallet = await DirectSecp256k1HdWallet.fromMnemonic(chainConf.sender.mnemonic, chainConf.sender.option);
 
-    const rpcEndpoint = chainConf.endpoint.rpc_endpoint;
-    const wallet = await DirectSecp256k1HdWallet.fromMnemonic(chainConf.sender.mnemonic, chainConf.sender.option);
-
-    const client = await SigningStargateClient.connectWithSigner(rpcEndpoint, wallet);
-    const [firstAccount] = await wallet.getAccounts();
-    await client.getBalance(firstAccount.address, chainConf.tx.amount.denom).then(x => {
-      return balance = x
-    }).catch(e => console.error(e));
+      const client = await SigningStargateClient.connectWithSigner(rpcEndpoint, wallet);
+      const [firstAccount] = await wallet.getAccounts();
+      await client.getBalance(firstAccount.address, chainConf.tx.amount.denom).then(x => {
+        return balance = x
+      }).catch(e => console.error(e));
+    }
   }
-
   res.send(balance);
 })
 

@@ -1,17 +1,17 @@
 import express from 'express';
 import * as path from 'path'
 
-import { DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
-import { SigningStargateClient } from "@cosmjs/stargate";
-import { FrequencyChecker } from './checker.js';
-
-import conf from './config.js'
-
 import { Wallet } from '@ethersproject/wallet'
 import { pathToString } from '@cosmjs/crypto';
 
 import { ethers } from 'ethers';
 import { bech32 } from 'bech32';
+
+import { DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
+import { SigningStargateClient } from "@cosmjs/stargate";
+
+import conf from './config.js'
+import { FrequencyChecker } from './checker.js';
 
 // load config
 console.log("loaded config: ", conf)
@@ -138,14 +138,19 @@ async function sendCosmosTx(recipient, chain) {
 
 async function sendEvmosTx(recipient, chain) {
 
-  const chainConf = conf.blockchains.find(x => x.name === chain) 
-  const ethProvider = new ethers.providers.JsonRpcProvider(chainConf.endpoint.evm_endpoint);
-
-  const wallet = Wallet.fromMnemonic(chainConf.sender.mnemonic).connect(ethProvider);
-  let decode = bech32.decode(recipient);
-  let array = bech32.fromWords(decode.words);
-  let evmAddress =  "0x" + toHexString(array);
   try{
+    const chainConf = conf.blockchains.find(x => x.name === chain) 
+    const ethProvider = new ethers.providers.JsonRpcProvider(chainConf.endpoint.evm_endpoint);
+
+    const wallet = Wallet.fromMnemonic(chainConf.sender.mnemonic).connect(ethProvider);
+
+    let evmAddress =  recipient;
+    if(recipient && !recipient.startsWith('0x')) {
+      let decode = bech32.decode(recipient);
+      let array = bech32.fromWords(decode.words);
+      evmAddress =  "0x" + toHexString(array);
+    }
+
     let result = await wallet.sendTransaction(
         { 
           from:wallet.address,

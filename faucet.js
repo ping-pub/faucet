@@ -84,7 +84,7 @@ app.get('/send/:chain/:address', async (req, res) => {
   if (chain || address ) {
     try {
       const chainConf = conf.blockchains.find(x => x.name === chain)
-      if (chainConf && address.startsWith(chainConf.sender.option.prefix)) {
+      if (chainConf && (address.startsWith(chainConf.sender.option.prefix) || address.startsWith('0x'))) {
         if( await checker.checkAddress(address, chain) && await checker.checkIp(`${chain}${ip}`, chain) ) {
           checker.update(`${chain}${ip}`) // get ::1 on localhost
           sendTx(address, chain).then(ret => {

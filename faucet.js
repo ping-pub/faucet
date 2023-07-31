@@ -51,19 +51,26 @@ app.get('/balance/:chain', async (req, res) => {
     const chainConf = conf.blockchains.find(x => x.name === chain)
     if(chainConf) {
       if(chainConf.type === 'Ethermint') {
-        const ethProvider = new ethers.providers.JsonRpcProvider(chainConf.endpoint.evm_endpoint);
-        const wallet = Wallet.fromMnemonic(chainConf.sender.mnemonic).connect(ethProvider);
-        await wallet.getBalance().then(ethBlance => {
-          balance = {
-            denom:chainConf.tx.amount.denom,
-            amount:ethBlance.toString()
-          }
-        }).catch(e => console.error(e))
+        // const ethProvider = new ethers.providers.JsonRpcProvider(chainConf.endpoint.evm_endpoint);
+        // const wallet = Wallet.fromMnemonic(chainConf.sender.mnemonic).connect(ethProvider);
+        // await wallet.getBalance().then(ethBlance => {
+        //   balance = {
+        //     denom:chainConf.tx.amount.denom,
+        //     amount:ethBlance.toString()
+        //   }
+        // }).catch(e => console.error(e))
+        const rpcEndpoint = chainConf.endpoint.rpc_endpoint;
+
+        const client = await SigningStargateClient.connect(rpcEndpoint);
+        const [firstAccount] = await wallet.getAccounts();
+        await client.getBalance(firstAccount.address, chainConf.tx.amount.denom).then(x => {
+          return balance = x
+        }).catch(e => console.error(e));
+      }
 
       }else{
         const rpcEndpoint = chainConf.endpoint.rpc_endpoint;
         const wallet = await DirectSecp256k1HdWallet.fromMnemonic(chainConf.sender.mnemonic, chainConf.sender.option);
-
         const client = await SigningStargateClient.connectWithSigner(rpcEndpoint, wallet);
         const [firstAccount] = await wallet.getAccounts();
         await client.getBalance(firstAccount.address, chainConf.tx.amount.denom).then(x => {
@@ -140,9 +147,9 @@ async function sendEvmosTx(recipient, chain) {
 
   try{
     const chainConf = conf.blockchains.find(x => x.name === chain) 
-    const ethProvider = new ethers.providers.JsonRpcProvider(chainConf.endpoint.evm_endpoint);
+    // const ethProvider = new ethers.providers.JsonRpcProvider(chainConf.endpoint.evm_endpoint);
 
-    const wallet = Wallet.fromMnemonic(chainConf.sender.mnemonic).connect(ethProvider);
+    const wallet = Wallet.fromMnemonic(chainConf.sender.mnemonic); // .connect(ethProvider);
 
     let evmAddress =  recipient;
     if(recipient && !recipient.startsWith('0x')) {
@@ -187,4 +194,13 @@ async function sendTx(recipient, chain) {
     return sendEvmosTx(recipient, chain)
   }
   return sendCosmosTx(recipient, chain)
+}
+
+// write a function to send evmos transaction
+async function sendEvmosTx2(recipient, chain) {
+
+  // use evmosjs to send transaction
+  const chainConf = conf.blockchains.find(x => x.name === chain) 
+  // create a wallet instance
+  const wallet = Wallet.fromMnemonic(chainConf.sender.mnemonic).connect(chainConf.endpoint.evm_endpoint);
 }

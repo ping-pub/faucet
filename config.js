@@ -20,7 +20,7 @@ export default {
                 rpc_endpoint: " http://34.80.93.133:26657",
             },
             sender: {
-                mnemonic: "surround miss nominee dream gap cross assault thank captain prosper drop duty group candy wealth weather scale put",
+                mnemonic: "wise rule method circle general over tool exhibit over group nuclear meat inform rival before short inner bind short enact team dinner swift ritual",
                 option: {
                     hdPaths: [stringToPath("m/44'/118'/0'/0/0")],
                     prefix: "iaa"
@@ -57,7 +57,7 @@ export default {
                 rpc_endpoint: "https://rpc.elgafar-1.stargaze-apis.com:443",
             },
             sender: {
-                mnemonic: "surround miss nominee dream gap cross assault thank captain prosper drop duty group candy wealth weather scale put",
+                mnemonic: "wise rule method circle general over tool exhibit over group nuclear meat inform rival before short inner bind short enact team dinner swift ritual",
                 option: {
                     hdPaths: [stringToPath("m/44'/118'/0'/0/0")],
                     prefix: "stars"
@@ -94,7 +94,7 @@ export default {
                 rpc_endpoint: "https://rpc.uni.junonetwork.io/",
             },
             sender: {
-                mnemonic: "surround miss nominee dream gap cross assault thank captain prosper drop duty group candy wealth weather scale put",
+                mnemonic: "wise rule method circle general over tool exhibit over group nuclear meat inform rival before short inner bind short enact team dinner swift ritual",
                 option: {
                     hdPaths: [stringToPath("m/44'/118'/0'/0/0")],
                     prefix: "juno"
@@ -131,7 +131,7 @@ export default {
                 rpc_endpoint: "http://65.21.93.56:26657/",
             },
             sender: {
-                mnemonic: "surround miss nominee dream gap cross assault thank captain prosper drop duty group candy wealth weather scale put",
+                mnemonic: "wise rule method circle general over tool exhibit over group nuclear meat inform rival before short inner bind short enact team dinner swift ritual",
                 option: {
                     hdPaths: [stringToPath("m/44'/118'/0'/0/0")],
                     prefix: "omniflix"
@@ -174,7 +174,7 @@ export default {
                 evm_endpoint: "http://52.220.252.160:8545/",
             },
             sender: {
-                mnemonic: "surround miss nominee dream gap cross assault thank captain prosper drop duty group candy wealth weather scale put",
+                mnemonic: "wise rule method circle general over tool exhibit over group nuclear meat inform rival before short inner bind short enact team dinner swift ritual",
                 option: {
                     hdPaths: [stringToPath("m/44'/60/0'/0/0")],
                     prefix: "uptick"

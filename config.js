@@ -20,17 +20,23 @@ export default {
                 rpc_endpoint: " https://kent-rpc.side.exchange",
             },
             sender: {
-                mnemonic: "wise rule method circle general over tool exhibit over group nuclear meat inform rival before short inner bind short enact team dinner swift ritual",
+                mnemonic: "enroll say issue energy aim south swing gesture elbow viable end action inherit key uphold",
                 option: {
                     hdPaths: [stringToPath("m/44'/118'/0'/0/0")],
                     prefix: "kent"
                 }
             },
             tx: {
-                amount: {
-                    denom: "ukent",
-                    amount: "1000000000"
-                },
+                amount: [
+                    {
+                        denom: "ukent",
+                        amount: "1000000000"
+                    },
+                    {
+                        denom: "uatom",
+                        amount: "10000000000"
+                    },
+                ],
                 fee: {
                     amount: [
                         {
@@ -63,9 +69,9 @@ export default {
                 evm_endpoint: "http://13.229.237.39:8545/",
             },
             sender: {
-                mnemonic: "wise rule method circle general over tool exhibit over group nuclear meat inform rival before short inner bind short enact team dinner swift ritual",
+                mnemonic: "enroll say issue energy aim south swing gesture elbow viable end action inherit key uphold",
                 option: {
-                    hdPaths: [stringToPath("m/44'/60/0'/0/0")],
+                    hdPaths: [stringToPath("m/44'/60")],
                     prefix: "prox"
                 }
             },
@@ -106,7 +112,7 @@ export default {
                 evm_endpoint: "http://52.77.209.10:8545/",
             },
             sender: {
-                mnemonic: "wise rule method circle general over tool exhibit over group nuclear meat inform rival before short inner bind short enact team dinner swift ritual",
+                mnemonic: "enroll say issue energy aim south swing gesture elbow viable end action inherit key uphold",
                 option: {
                     hdPaths: [stringToPath("m/44'/60/0'/0/0")],
                     prefix: "toli"
@@ -135,7 +141,5 @@ export default {
                 ip: 10 
             }
         },
-
-
     ]    
 }

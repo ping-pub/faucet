@@ -66,8 +66,6 @@ app.get('/balance/:chain', async (req, res) => {
         await client.getBalance(firstAccount.address, chainConf.tx.amount.denom).then(x => {
           return balance = x
         }).catch(e => console.error(e));
-      }
-
       }else{
         const rpcEndpoint = chainConf.endpoint.rpc_endpoint;
         const wallet = await DirectSecp256k1HdWallet.fromMnemonic(chainConf.sender.mnemonic, chainConf.sender.option);

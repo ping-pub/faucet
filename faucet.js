@@ -2,7 +2,17 @@ import express from 'express';
 import * as path from 'path'
 
 import { Wallet } from '@ethersproject/wallet'
-import { pathToString } from '@cosmjs/crypto';
+import {
+  Bip39,
+  EnglishMnemonic,
+  pathToString,
+  Secp256k1,
+  Slip10,
+  Slip10Curve,
+  stringToPath,
+  Keccak256
+} from "@cosmjs/crypto";
+import { toBech32, fromHex, toHex, toAscii } from "@cosmjs/encoding";
 
 import { ethers } from 'ethers';
 import { bech32 } from 'bech32';
@@ -31,9 +41,13 @@ app.get('/config.json', async (req, res) => {
     const wallet = await DirectSecp256k1HdWallet.fromMnemonic(chainConf.sender.mnemonic, chainConf.sender.option);
     const [firstAccount] = await wallet.getAccounts();
     sample[chainConf.name] = firstAccount.address
+    if(chainConf.type === 'Ethermint') {
+      const wallet = await fromMnemonicEthermint(chainConf.sender.mnemonic, chainConf.sender.option);
+      sample[chainConf.name] = wallet.address;
+    }
 
     const wallet2 = Wallet.fromMnemonic(chainConf.sender.mnemonic, pathToString(chainConf.sender.option.hdPaths[0]));
-    console.log('address:', firstAccount.address, wallet2.address)
+    console.log('address:', sample[chainConf.name], wallet2.address);
   }
 
   const project = conf.project
@@ -51,21 +65,14 @@ app.get('/balance/:chain', async (req, res) => {
     const chainConf = conf.blockchains.find(x => x.name === chain)
     if(chainConf) {
       if(chainConf.type === 'Ethermint') {
-        // const ethProvider = new ethers.providers.JsonRpcProvider(chainConf.endpoint.evm_endpoint);
-        // const wallet = Wallet.fromMnemonic(chainConf.sender.mnemonic).connect(ethProvider);
-        // await wallet.getBalance().then(ethBlance => {
-        //   balance = {
-        //     denom:chainConf.tx.amount.denom,
-        //     amount:ethBlance.toString()
-        //   }
-        // }).catch(e => console.error(e))
-        const rpcEndpoint = chainConf.endpoint.rpc_endpoint;
-
-        const client = await SigningStargateClient.connect(rpcEndpoint);
-        const [firstAccount] = await wallet.getAccounts();
-        await client.getBalance(firstAccount.address, chainConf.tx.amount.denom).then(x => {
-          return balance = x
-        }).catch(e => console.error(e));
+        const ethProvider = new ethers.providers.JsonRpcProvider(chainConf.endpoint.evm_endpoint);
+        const wallet = Wallet.fromMnemonic(chainConf.sender.mnemonic).connect(ethProvider);
+        await wallet.getBalance().then(ethBlance => {
+          balance = {
+            denom:chainConf.tx.amount.denom,
+            amount:ethBlance.toString()
+          }
+        }).catch(e => console.error(e))
       }else{
         const rpcEndpoint = chainConf.endpoint.rpc_endpoint;
         const wallet = await DirectSecp256k1HdWallet.fromMnemonic(chainConf.sender.mnemonic, chainConf.sender.option);
@@ -201,4 +208,41 @@ async function sendEvmosTx2(recipient, chain) {
   const chainConf = conf.blockchains.find(x => x.name === chain) 
   // create a wallet instance
   const wallet = Wallet.fromMnemonic(chainConf.sender.mnemonic).connect(chainConf.endpoint.evm_endpoint);
+}
+
+async function fromMnemonicEthermint(mnemonic, options) {
+  const mnemonicChecked = new EnglishMnemonic(mnemonic);
+  const seed = await Bip39.mnemonicToSeed(mnemonicChecked, options.bip39Password);
+  const prefix = options.prefix ?? "cosmos";
+  const hdPaths = options.hdPaths ?? [stringToPath("m/44'/60'/0'/0/0")];
+  const hdPath = hdPaths[0];
+  const { privkey } = Slip10.derivePath(Slip10Curve.Secp256k1, seed, hdPath);
+  const { pubkey } = await Secp256k1.makeKeypair(privkey);
+  
+  const coinType = pathToString(hdPath).split('/')[2]
+  // ETH cointype=60
+  if (coinType !== "60'") {
+    console.error("Only support hapath with 60'");
+    return
+  }
+
+  const hash = new Keccak256(pubkey.slice(1)).digest()
+  // 40 low hex characters
+  const lastTwentyBytes = toHex(hash.slice(-20));
+  const addressHash = toHex(new Keccak256(toAscii(lastTwentyBytes)).digest());
+  // EVM address
+  let checksumAddress = "0x";
+  for (let i = 0; i < 40; i++) {
+    checksumAddress += parseInt(addressHash[i], 16) > 7 ? lastTwentyBytes[i].toUpperCase() : lastTwentyBytes[i];
+  }
+  const evmAddrWithoutHexPrefix = checksumAddress.replace(/^(-)?0x/i, '$1');
+  const evmAddressBytes = fromHex(evmAddrWithoutHexPrefix);
+  const evmToBech32Address = toBech32(prefix, evmAddressBytes);
+  
+  return {
+    algo: "eth_secp256k1",
+    privkey: privkey,
+    pubkey: Secp256k1.compressPubkey(pubkey),
+    address: evmToBech32Address,
+  }
 }

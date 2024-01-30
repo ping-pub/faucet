@@ -4,7 +4,6 @@ import * as path from 'path'
 import { Wallet } from '@ethersproject/wallet'
 import { pathToString } from '@cosmjs/crypto';
 
-import { ethers } from 'ethers';
 import { bech32 } from 'bech32';
 
 import { DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
@@ -18,10 +17,12 @@ console.log("loaded config: ", conf)
 
 const app = express()
 
+app.set("view engine", "ejs");
+
 const checker = new FrequencyChecker(conf)
 
 app.get('/', (req, res) => {
-  res.sendFile(path.resolve('./index.html'));
+  res.render('index', conf);
 })
 
 app.get('/config.json', async (req, res) => {

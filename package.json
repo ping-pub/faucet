@@ -26,17 +26,18 @@
   "homepage": "https://github.com/ping-pub/faucet#readme",
   "dependencies": {
     "@cosmjs/crypto": "^0.31",
+    "@cosmjs/encoding": "0.31.0",
     "@cosmjs/proto-signing": "^0.31",
     "@cosmjs/stargate": "^0.31",
-    "@cosmjs/encoding": "0.31.0",
     "@ethersproject/wallet": "^5.7.0",
     "@hanchon/evmos-ts-wallet": "^0.2.0",
     "@tharsis/transactions": "^0.2.6",
+    "bech32": "^2.0.0",
+    "ejs": "^3.1.9",
+    "ethers": "^5.7.1",
+    "evmosjs": "0.3.3",
     "express": "^4.18.2",
     "level": "^8.0.0",
-    "nodemodule": "^0.3.0",
-    "bech32": "^2.0.0",
-    "evmosjs": "0.3.3",
-    "ethers": "^5.7.1"
+    "nodemodule": "^0.3.0"
   }
 }

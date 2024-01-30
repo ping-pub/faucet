@@ -1,10 +1,24 @@
 
 import { stringToPath } from '@cosmjs/crypto'
+import fs from 'fs'
+import { ethers } from 'ethers'
+
+const HOME = ".faucet";
+const mnemonic_path= `${HOME}/mnemonic.txt`
+if (!fs.existsSync(mnemonic_path)) {
+    fs.mkdirSync(HOME, { recursive: true })
+    fs.writeFileSync(mnemonic_path, ethers.Wallet.createRandom().mnemonic.phrase)
+}
+
+const mnemonic = fs.readFileSync(mnemonic_path, 'utf8')
+console.log("======================== faucet mnemonic =========================")
+console.log(mnemonic)
+console.log("==================================================================")
 
 export default {
     port: 8088, // http port 
     db: {
-        path: "./db/faucet.db" // save request states 
+        path: `${HOME}/history.db` // save request states 
     },
     project: {
         name: "Demo of Side Exchange",
@@ -17,13 +31,13 @@ export default {
             endpoint: {
                 // make sure that CORS is enabled in rpc section in config.toml
                 // cors_allowed_origins = ["*"]
-                rpc_endpoint: " https://kent-rpc.side.exchange",
+                rpc_endpoint: " https://testnet-rpc.side.one",
             },
             sender: {
-                mnemonic: "enroll say issue energy aim south swing gesture elbow viable end action inherit key uphold",
+                mnemonic,
                 option: {
                     hdPaths: [stringToPath("m/44'/118'/0'/0/0")],
-                    prefix: "kent"
+                    prefix: "side" // human readable address prefix
                 }
             },
             tx: {
@@ -69,7 +83,7 @@ export default {
                 evm_endpoint: "http://13.229.237.39:8545/",
             },
             sender: {
-                mnemonic: "enroll say issue energy aim south swing gesture elbow viable end action inherit key uphold",
+                mnemonic,
                 option: {
                     hdPaths: [stringToPath("m/44'/60")],
                     prefix: "prox"
@@ -112,7 +126,7 @@ export default {
                 evm_endpoint: "http://52.77.209.10:8545/",
             },
             sender: {
-                mnemonic: "enroll say issue energy aim south swing gesture elbow viable end action inherit key uphold",
+                mnemonic,
                 option: {
                     hdPaths: [stringToPath("m/44'/60/0'/0/0")],
                     prefix: "toli"

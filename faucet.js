@@ -4,6 +4,7 @@ import * as path from 'path'
 import { Wallet } from '@ethersproject/wallet'
 import { pathToString } from '@cosmjs/crypto';
 
+import { ethers } from 'ethers'
 import { bech32 } from 'bech32';
 
 import { DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
@@ -52,28 +53,23 @@ app.get('/balance/:chain', async (req, res) => {
     const chainConf = conf.blockchains.find(x => x.name === chain)
     if(chainConf) {
       if(chainConf.type === 'Ethermint') {
-        // const ethProvider = new ethers.providers.JsonRpcProvider(chainConf.endpoint.evm_endpoint);
-        // const wallet = Wallet.fromMnemonic(chainConf.sender.mnemonic).connect(ethProvider);
-        // await wallet.getBalance().then(ethBlance => {
-        //   balance = {
-        //     denom:chainConf.tx.amount.denom,
-        //     amount:ethBlance.toString()
-        //   }
-        // }).catch(e => console.error(e))
-        const rpcEndpoint = chainConf.endpoint.rpc_endpoint;
+        const ethProvider = new ethers.providers.JsonRpcProvider(chainConf.endpoint.evm_endpoint);
+        const wallet = Wallet.fromMnemonic(chainConf.sender.mnemonic, pathToString(chainConf.sender.option.hdPaths[0])).connect(ethProvider);
+        console.log("address", wallet.address, chainConf.endpoint.evm_endpoint)
+        await wallet.getBalance().then(ethBlance => {
+          balance = {
+            denom:chainConf.tx.amount.denom,
+            amount:ethBlance.toString()
+          }
+        }).catch(e => console.error(e))
 
-        const client = await SigningStargateClient.connect(rpcEndpoint);
-        const [firstAccount] = await wallet.getAccounts();
-        await client.getBalance(firstAccount.address, chainConf.tx.amount.denom).then(x => {
-          return balance = x
-        }).catch(e => console.error(e));
       }else{
         const rpcEndpoint = chainConf.endpoint.rpc_endpoint;
         const wallet = await DirectSecp256k1HdWallet.fromMnemonic(chainConf.sender.mnemonic, chainConf.sender.option);
         const client = await SigningStargateClient.connectWithSigner(rpcEndpoint, wallet);
         const [firstAccount] = await wallet.getAccounts();
-        await client.getBalance(firstAccount.address, chainConf.tx.amount.denom).then(x => {
-          return balance = x
+        await client.getBalance(firstAccount.address, chainConf.tx.amount[0].denom).then(x => {
+          balance = x
         }).catch(e => console.error(e));
       }
     }
@@ -132,12 +128,12 @@ async function sendCosmosTx(recipient, chain) {
 
     const rpcEndpoint = chainConf.endpoint.rpc_endpoint;
     const client = await SigningStargateClient.connectWithSigner(rpcEndpoint, wallet);
-    client.getBalance
 
     // const recipient = "cosmos1xv9tklw7d82sezh9haa573wufgy59vmwe6xxe5";
     const amount = chainConf.tx.amount;
     const fee = chainConf.tx.fee;
-    return client.sendTokens(firstAccount.address, recipient, [amount], fee);
+    console.log("recipient", recipient, amount, fee);
+    return client.sendTokens(firstAccount.address, recipient, amount, fee);
   }
   throw new Error(`Blockchain Config [${chain}] not found`)
 }
@@ -146,9 +142,9 @@ async function sendEvmosTx(recipient, chain) {
 
   try{
     const chainConf = conf.blockchains.find(x => x.name === chain) 
-    // const ethProvider = new ethers.providers.JsonRpcProvider(chainConf.endpoint.evm_endpoint);
+    const ethProvider = new ethers.providers.JsonRpcProvider(chainConf.endpoint.evm_endpoint);
 
-    const wallet = Wallet.fromMnemonic(chainConf.sender.mnemonic); // .connect(ethProvider);
+    const wallet = Wallet.fromMnemonic(chainConf.sender.mnemonic).connect(ethProvider);
 
     let evmAddress =  recipient;
     if(recipient && !recipient.startsWith('0x')) {

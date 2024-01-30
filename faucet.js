@@ -55,7 +55,6 @@ app.get('/balance/:chain', async (req, res) => {
       if(chainConf.type === 'Ethermint') {
         const ethProvider = new ethers.providers.JsonRpcProvider(chainConf.endpoint.evm_endpoint);
         const wallet = Wallet.fromMnemonic(chainConf.sender.mnemonic, pathToString(chainConf.sender.option.hdPaths[0])).connect(ethProvider);
-        console.log("address", wallet.address, chainConf.endpoint.evm_endpoint)
         await wallet.getBalance().then(ethBlance => {
           balance = {
             denom:chainConf.tx.amount.denom,

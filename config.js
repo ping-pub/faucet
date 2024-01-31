@@ -1,13 +1,16 @@
 
 import { stringToPath } from '@cosmjs/crypto'
 import fs from 'fs'
-import { ethers } from 'ethers'
+// import { ethers } from 'ethers'
+import { Wallet, utils } from 'ethers';
 
 const HOME = ".faucet";
 const mnemonic_path= `${HOME}/mnemonic.txt`
 if (!fs.existsSync(mnemonic_path)) {
     fs.mkdirSync(HOME, { recursive: true })
-    fs.writeFileSync(mnemonic_path, ethers.Wallet.createRandom().mnemonic.phrase)
+    fs.writeFileSync(mnemonic_path, Wallet.fromMnemonic(
+        utils.entropyToMnemonic(utils.randomBytes(32))
+      ).mnemonic.phrase)
 }
 
 const mnemonic = fs.readFileSync(mnemonic_path, 'utf8')

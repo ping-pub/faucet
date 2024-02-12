@@ -32,5 +32,3 @@ EXPOSE 8000
 WORKDIR ${APP_PATH}
 
 USER ${USERNAME}
-
-# ENTRYPOINT ["node", "--es-module-specifier-resolution=node", "faucet.js"]

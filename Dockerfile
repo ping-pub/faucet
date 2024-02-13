@@ -17,9 +17,11 @@ RUN apt update && \
       perl-base && \
     rm -rf /var/cache/apt/*
 
-RUN git clone https://github.com/allora-network/allora-faucet.git $APP_PATH && \
-    cd $APP_PATH && \
-    npm install dependencies
+WORKDIR ${APP_PATH}
+
+ADD . $APP_PATH
+
+RUN npm install dependencies
 
 RUN groupadd -g 1001 ${USERNAME} \
     && useradd -m -d ${APP_PATH} -u 1001 -g 1001 ${USERNAME}

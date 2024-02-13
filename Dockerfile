@@ -24,9 +24,6 @@ RUN git clone https://github.com/ping-pub/faucet.git $APP_PATH && \
 RUN groupadd -g 1001 ${USERNAME} \
     && useradd -m -d ${APP_PATH} -u 1001 -g 1001 ${USERNAME}
 
-# Adjust config PATH
-RUN sed -i "s#import conf from './config.js'#import conf from './config/config.js'#" $APP_PATH/faucet.js
-
 EXPOSE 8000
 
 WORKDIR ${APP_PATH}

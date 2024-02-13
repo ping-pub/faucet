@@ -92,27 +92,41 @@
               this.balance = balance
             })
           },
-          requestToken(obj) {
+          async requestToken(obj) {
             if (this.address) {
               // button state
-              obj.disabled = true
+              obj.disabled = true;
               document.getElementById("button-loading").style.display = 'block';
-              
-              fetch(`/send/${this.chain}/${this.address}`).then(response => response.json()).then(data => {
-                  // button state
-                  obj.disabled = false
-                  document.getElementById("button-loading").style.display = 'none';
-                  // show result
-                  this.message = `
-                  <div class="alert alert-${data.result.code ===0? 'success': 'danger'} alert-dismissible show fade mt-2" role="alert">
-                      <li>${data.result.code ===0? 'Token sent': 'Request failed'}</li>
-                      <textarea class="form-control mt-1" rows="5" style="background-color:transparent">${JSON.stringify(data, null, 2)}</textarea>
-                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+
+              try {
+                const response = await fetch(`/send/${this.chain}/${this.address}`);
+                const data = await response.json();
+
+                // button state
+                obj.disabled = false;
+                document.getElementById("button-loading").style.display = 'none';
+                // show result
+                this.message = `
+                  <div class="alert alert-${data.result.code === 0 ? 'success' : 'danger'} alert-dismissible show fade mt-2" role="alert">
+                    <li>${data.result.code === 0 ? 'Token sent' : 'Request failed'}</li>
+                    <textarea class="form-control mt-1" rows="5" style="background-color:transparent">${JSON.stringify(data, null, 2)}</textarea>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                   </div>
-                  `
-              });
+                `;
+              } catch (e) {
+                // show request failed message
+                this.message = `
+                  <div class="alert alert-danger alert-dismissible show fade mt-2" role="alert">
+                    <li>Request failed</li>
+                  </div>
+                `;
+              } finally {
+                // button state
+                obj.disabled = false;
+                document.getElementById("button-loading").style.display = 'none';
+              }
             } else {
-                this.message = '<span class="text-danger">Address is required</span>'
+              this.message = '<span class="text-danger">Address is required</span>';
             }
           }
         }

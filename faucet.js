@@ -22,6 +22,11 @@ app.set("view engine", "ejs");
 
 const checker = new FrequencyChecker(conf)
 
+app.use((req, res, next) => {
+  console.log(`Received ${req.method} request at ${req.url}`);
+  next();
+});
+
 app.get('/', (req, res) => {
   res.render('index', conf);
 })
@@ -78,38 +83,47 @@ app.get('/balance/:chain', async (req, res) => {
   res.send(balance);
 })
 
-app.get('/send/:chain/:address', async (req, res) => {
-  const {chain, address} = req.params;
-  const ip = req.headers['x-real-ip'] || req.headers['X-Real-IP'] || req.headers['X-Forwarded-For'] || req.ip
-  console.log('request tokens to ', address, ip)
-  if (chain || address ) {
-    try {
-      const chainConf = conf.blockchains.find(x => x.name === chain)
-      if (chainConf && (address.startsWith(chainConf.sender.option.prefix) || address.startsWith('0x'))) {
-        if( await checker.checkAddress(address, chain) && await checker.checkIp(`${chain}${ip}`, chain) ) {
-          checker.update(`${chain}${ip}`) // get ::1 on localhost
-          sendTx(address, chain).then(ret => {
+app.get('/send/:chain/:address', async (req, res, next) => {
+  return Promise.resolve().then(async () => {
+    const {chain, address} = req.params;
+    const ip = req.headers['x-real-ip'] || req.headers['X-Real-IP'] || req.headers['X-Forwarded-For'] || req.ip
+    console.log('request tokens to ', address, ip)
+    if (chain || address ) {
+      try {
+        const chainConf = conf.blockchains.find(x => x.name === chain)
+        if (chainConf && (address.startsWith(chainConf.sender.option.prefix) || address.startsWith('0x'))) {
+          if( await checker.checkAddress(address, chain) && await checker.checkIp(`${chain}${ip}`, chain) ) {
+            checker.update(`${chain}${ip}`) // get ::1 on localhost
+            sendTx(address, chain).then(ret => {
 
-            checker.update(address)
-            res.send({ result: ret })
-          }).catch(err => {
-            res.send({ result: `err: ${err}`})
-          });
-        }else {
-          res.send({ result: "You requested too often" })
+              checker.update(address)
+              res.send({ result: ret })
+            }).catch(err => {
+              res.send({ result: `err: ${err}`})
+            });
+          }else {
+            res.send({ result: "You requested too often" })
+          }
+        } else {
+          res.send({ result: `Address [${address}] is not supported.` })
         }
-      } else {
-        res.send({ result: `Address [${address}] is not supported.` })
+      } catch (err) {
+        console.error(err);
+        res.send({ result: 'Failed, Please contact to admin.' })
       }
-    } catch (err) {
-      console.error(err);
-      res.send({ result: 'Failed, Please contact to admin.' })
-    }
 
-  } else {
-    // send result
-    res.send({ result: 'address is required' });
-  }
+    } else {
+      // send result
+      res.send({ result: 'address is required' });
+    }}).catch(next)
+})
+
+// 500 - Any server error
+app.use((err, req, res) => {
+  console.log("Error catched by error middleware:", err)
+  res.status(500).send({
+    result: `err: ${err}`
+  })
 })
 
 app.listen(conf.port, () => {

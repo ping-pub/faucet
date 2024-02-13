@@ -17,7 +17,7 @@ RUN apt update && \
       perl-base && \
     rm -rf /var/cache/apt/*
 
-RUN git clone https://github.com/ping-pub/faucet.git $APP_PATH && \
+RUN git clone https://github.com/allora-network/allora-faucet.git $APP_PATH && \
     cd $APP_PATH && \
     npm install dependencies
 

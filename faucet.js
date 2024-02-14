@@ -120,9 +120,9 @@ app.get('/send/:chain/:address', async (req, res, next) => {
 
 // 500 - Any server error
 app.use((err, req, res) => {
-  console.log("Error catched by error middleware:", err)
+  console.error("Error catched by error middleware:", err.stack)
   res.sendStatus(500).send({
-    result: `err: ${err}`
+    result: `err: ${err.message}`
   });
 })
 

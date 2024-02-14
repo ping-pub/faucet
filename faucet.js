@@ -3,7 +3,7 @@ import express from 'express';
 import { Wallet } from '@ethersproject/wallet'
 import { pathToString } from '@cosmjs/crypto';
 
-import { ethers } from 'ethers'
+import { BigNumber, ethers } from 'ethers'
 import { bech32 } from 'bech32';
 
 import { DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
@@ -91,13 +91,10 @@ app.get('/send/:chain/:address', async (req, res, next) => {
       // try {
         const chainConf = conf.blockchains.find(x => x.name === chain)
         if (chainConf && (address.startsWith(chainConf.sender.option.prefix) || address.startsWith('0x'))) {
-          console.log("##################");
           if( await checker.checkAddress(address, chain) && await checker.checkIp(`${chain}${ip}`, chain) ) {
-            console.log("------------------")
             checker.update(`${chain}${ip}`) // get ::1 on localhost
-            console.log("kkkkkkk")
-            await sendTx(address, chain);
-            const ret = checker.update(address)
+            const ret = await sendTx(address, chain);
+            await checker.update(address)
             res.send({ result: ret })
           }else {
             res.send({ result: "You requested too often" })
@@ -119,9 +116,6 @@ app.get('/send/:chain/:address', async (req, res, next) => {
 // 500 - Any server error
 app.use((err, req, res) => {
   console.log("\nError catched by error middleware:", err.stack)
-  // res.sendStatus(500).send({
-  //   result: `err: ${err.message}`
-  // });
 })
 
 app.listen(conf.port, () => {
@@ -144,8 +138,18 @@ async function sendCosmosTx(recipient, chain) {
     // const recipient = "cosmos1xv9tklw7d82sezh9haa573wufgy59vmwe6xxe5";
     const amount = chainConf.tx.amount;
     const fee = chainConf.tx.fee;
-    console.log("recipient", recipient, amount, fee);
-    return client.sendTokens(firstAccount.address, recipient, amount, fee);
+    const initialAccountBalance = await client.getBalance(recipient, chainConf.tx.amount[0].denom)
+
+    try {
+      return await client.sendTokens(firstAccount.address, recipient, amount, fee);
+    } catch(e) {
+      const finalAccountBalance = await client.getBalance(recipient, chainConf.tx.amount[0].denom)
+      const diff = BigNumber.from(finalAccountBalance.amount).sub(BigNumber.from(initialAccountBalance.amount))
+      if (!diff.eq(BigNumber.from(amount[0].amount))) {
+        throw new Error(`Recipient balance did not increase by the expected amount. Error: ${e.message}`)
+      }
+    }
+    return {code: 0}
   }
   throw new Error(`Blockchain Config [${chain}] not found`)
 }

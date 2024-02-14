@@ -88,29 +88,24 @@ app.get('/send/:chain/:address', async (req, res, next) => {
     const ip = req.headers['x-real-ip'] || req.headers['X-Real-IP'] || req.headers['X-Forwarded-For'] || req.ip
     console.log('request tokens to ', address, ip)
     if (chain || address ) {
-      try {
+      // try {
         const chainConf = conf.blockchains.find(x => x.name === chain)
         if (chainConf && (address.startsWith(chainConf.sender.option.prefix) || address.startsWith('0x'))) {
           if( await checker.checkAddress(address, chain) && await checker.checkIp(`${chain}${ip}`, chain) ) {
             checker.update(`${chain}${ip}`) // get ::1 on localhost
-            console.log("here")
-            sendTx(address, chain).then(ret => {
-              console.log("there")
-              checker.update(address)
-              res.send({ result: ret })
-            }).catch(err => {
-              res.send({ result: `err: ${err}`})
-            });
+            await sendTx(address, chain);
+            checker.update(address)
+            res.send({ result: ret })
           }else {
             res.send({ result: "You requested too often" })
           }
         } else {
           res.send({ result: `Address [${address}] is not supported.` })
         }
-      } catch (err) {
-        console.error(err);
-        res.send({ result: 'Failed, Please contact to admin.' })
-      }
+      // } catch (err) {
+      //   console.error(err);
+      //   res.send({ result: 'Failed, Please contact to admin.' })
+      // }
 
     } else {
       // send result
@@ -120,7 +115,7 @@ app.get('/send/:chain/:address', async (req, res, next) => {
 
 // 500 - Any server error
 app.use((err, req, res) => {
-  console.error("Error catched by error middleware:", err.stack)
+  console.log("\nError catched by error middleware:", err.stack)
   res.sendStatus(500).send({
     result: `err: ${err.message}`
   });

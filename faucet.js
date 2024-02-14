@@ -1,5 +1,4 @@
 import express from 'express';
-import * as path from 'path'
 
 import { Wallet } from '@ethersproject/wallet'
 import { pathToString } from '@cosmjs/crypto';
@@ -94,8 +93,9 @@ app.get('/send/:chain/:address', async (req, res, next) => {
         if (chainConf && (address.startsWith(chainConf.sender.option.prefix) || address.startsWith('0x'))) {
           if( await checker.checkAddress(address, chain) && await checker.checkIp(`${chain}${ip}`, chain) ) {
             checker.update(`${chain}${ip}`) // get ::1 on localhost
+            console.log("here")
             sendTx(address, chain).then(ret => {
-
+              console.log("there")
               checker.update(address)
               res.send({ result: ret })
             }).catch(err => {
@@ -121,9 +121,9 @@ app.get('/send/:chain/:address', async (req, res, next) => {
 // 500 - Any server error
 app.use((err, req, res) => {
   console.log("Error catched by error middleware:", err)
-  res.status(500).send({
+  res.sendStatus(500).send({
     result: `err: ${err}`
-  })
+  });
 })
 
 app.listen(conf.port, () => {
@@ -131,6 +131,7 @@ app.listen(conf.port, () => {
 })
 
 async function sendCosmosTx(recipient, chain) {
+  console.log("sendCosmosTx", recipient, chain)
   // const mnemonic = "surround miss nominee dream gap cross assault thank captain prosper drop duty group candy wealth weather scale put";
   const chainConf = conf.blockchains.find(x => x.name === chain) 
   if(chainConf) {

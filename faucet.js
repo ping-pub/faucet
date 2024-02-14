@@ -91,10 +91,13 @@ app.get('/send/:chain/:address', async (req, res, next) => {
       // try {
         const chainConf = conf.blockchains.find(x => x.name === chain)
         if (chainConf && (address.startsWith(chainConf.sender.option.prefix) || address.startsWith('0x'))) {
+          console.log("##################");
           if( await checker.checkAddress(address, chain) && await checker.checkIp(`${chain}${ip}`, chain) ) {
+            console.log("------------------")
             checker.update(`${chain}${ip}`) // get ::1 on localhost
+            console.log("kkkkkkk")
             await sendTx(address, chain);
-            checker.update(address)
+            const ret = checker.update(address)
             res.send({ result: ret })
           }else {
             res.send({ result: "You requested too often" })
@@ -116,9 +119,9 @@ app.get('/send/:chain/:address', async (req, res, next) => {
 // 500 - Any server error
 app.use((err, req, res) => {
   console.log("\nError catched by error middleware:", err.stack)
-  res.sendStatus(500).send({
-    result: `err: ${err.message}`
-  });
+  // res.sendStatus(500).send({
+  //   result: `err: ${err.message}`
+  // });
 })
 
 app.listen(conf.port, () => {

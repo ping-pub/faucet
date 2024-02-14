@@ -2,3 +2,5 @@
 /web.js
 /db
 .idea
+config
+secret

@@ -80,7 +80,7 @@ app.get('/balance/:chain', async (req, res) => {
 
 app.get('/send/:chain/:address', async (req, res) => {
   const {chain, address} = req.params;
-  const ip = req.headers['x-real-ip'] || req.headers['X-Real-IP'] || req.headers['X-Forwarded-For'] || req.ip
+  const ip = req.headers['cf-connecting-ip'] || req.headers['x-real-ip'] || req.headers['X-Forwarded-For'] || req.ip
   console.log('request tokens to ', address, ip)
   if (chain || address ) {
     try {
@@ -88,6 +88,7 @@ app.get('/send/:chain/:address', async (req, res) => {
       if (chainConf && (address.startsWith(chainConf.sender.option.prefix) || address.startsWith('0x'))) {
         if( await checker.checkAddress(address, chain) && await checker.checkIp(`${chain}${ip}`, chain) ) {
           checker.update(`${chain}${ip}`) // get ::1 on localhost
+          console.log('send tokens to ', address)
           sendTx(address, chain).then(ret => {
 
             checker.update(address)

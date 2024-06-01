@@ -14,7 +14,8 @@ You can choose either **Faucet Service** or **Self-hosted** options:
 
 ### Prepare for Faucet Service
 
-- Submit Chain Configuration: You can submit your chain configuration [here](https://github.com/ping-pub/ping.pub).
+- **Submit Chain Configuration**: You can submit your chain configuration [here](https://github.com/ping-pub/ping.pub).
+- **Fund the Faucet**: Find the faucet address on your faucet page and send some tokens to it.
 
 ## Self-hosted
 

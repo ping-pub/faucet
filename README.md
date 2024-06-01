@@ -10,7 +10,7 @@ You can choose either **Faucet Service** or **Self-hosted** options:
 - **GRPC**: Integration with GRPC for efficient communication.
 - **High Concurrency**: Capable of handling high concurrent requests.
 - **No Deployment Needed**: Simply requires a GRPC endpoint and basic configuration.
-- **Explorer Integration**: Native integration with the `Ping Dashboard` on [Ping Pub](https://testnet.ping.pub).
+- **Explorer Integration**: Native integration with the `Ping Dashboard` on [testnet.ping.pub](https://testnet.ping.pub).
 
 ### Prepare for Faucet Service
 

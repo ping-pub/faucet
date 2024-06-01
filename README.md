@@ -1,4 +1,4 @@
-# faucet
+# Ping Faucet
 
 <img width="1052" alt="preview" src="https://user-images.githubusercontent.com/2882920/202998797-b793c52b-9ad7-47fe-a80b-a0f75eff6ba1.png">
 

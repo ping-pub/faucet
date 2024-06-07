@@ -7,10 +7,11 @@ You can choose either **Faucet Service** or **Self-hosted** options:
 
 ### Why Faucet Service?
 
-- **GRPC**: Integration with GRPC for efficient communication.
 - **High Concurrency**: Capable of handling high concurrent requests.
-- **No Deployment Needed**: Simply requires a GRPC endpoint and basic configuration.
+- **Robot Prevention**: Only browser users are allowed to claim.
+- **No Deployment Needed**: Simply requires a REST endpoint and basic configuration.
 - **Explorer Integration**: Native integration with the `Ping Dashboard` on [testnet.ping.pub](https://testnet.ping.pub).
+- **Customized Claiming Rules**: Limited by IP address and wallet address.
 
 ### Prepare for Faucet Service
 
@@ -22,6 +23,8 @@ You can choose either **Faucet Service** or **Self-hosted** options:
 - [Multi-chain](https://github.com/ping-pub/faucet/tree/multi-chains): Supports multiple blockchains.
 - [Cosmos](https://github.com/ping-pub/faucet/tree/cosmos): Supports simple Cosmos-based blockchains.
 - [Evmos](https://github.com/ping-pub/faucet/tree/evmos): Supports Evmos-like blockchains.
+
+> Does not support high concurrency and robot prevention. 
 
 ## Donation
 
